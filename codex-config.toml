@@ -2,3 +2,6 @@
 # On machines with an existing config, merge these two keys manually.
 model = "gpt-5.5"
 model_reasoning_effort = "xhigh"
+
+[features]
+fast_mode = true

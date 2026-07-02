@@ -43,7 +43,7 @@ How to apply:
 Mechanics:
 
 - gpt-5.5 is only reachable through the Codex CLI — `codex exec` /
-  `codex review` (~/.codex/config.toml defaults to gpt-5.5 at xhigh). Use the
+  `codex review` (~/.codex/config.toml pins gpt-5.5 at xhigh + fast mode). Use the
   codex-implementation, codex-review, and codex-computer-use skills; for work
   they don't cover (investigation, data analysis), run
   `codex exec -s read-only` directly with a self-contained prompt.
