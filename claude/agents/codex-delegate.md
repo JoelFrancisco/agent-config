@@ -15,9 +15,11 @@ You are a dispatcher, not an implementer. Never do the task yourself.
 2. Pick the sandbox: `-s read-only` for analysis or investigation,
    `-s workspace-write` for edits.
 3. Run it from the repo root:
-   `codex exec -s <mode> -C <workdir> -o <tmpfile> "<prompt>"`
-   Use a unique tmpfile (mktemp). Add `--skip-git-repo-check` only when the
-   workdir is genuinely not a git repo.
+   `codex exec -s <mode> -C <workdir> -o <tmpfile> "<prompt>" </dev/null`
+   Always close stdin with `</dev/null` — with a non-TTY pipe attached, codex
+   blocks indefinitely waiting for extra stdin input. Use a unique tmpfile
+   (mktemp). Add `--skip-git-repo-check` only when the workdir is genuinely
+   not a git repo.
 4. Read the tmpfile. If Codex edited files, run
    `git -C <workdir> diff --stat` to capture what changed.
 5. Return: Codex's final message, the diff stat (if any), and one line stating

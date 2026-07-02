@@ -10,6 +10,8 @@ description: Get an independent gpt-5.5 code review of the current changes via c
    - Branch against base: `codex review --base <default-branch>`
    - Optional focus as a trailing prompt, e.g.
      `codex review --base main "Focus on concurrency and error handling"`
+   - Append `</dev/null` when running in the background — codex blocks on a
+     non-TTY stdin pipe waiting for extra input.
 2. Triage its findings yourself — verify each claimed issue against the code
    before repeating it. Codex has taste 5: trust it on correctness and logic,
    double-check its style and API-design opinions against your own judgment.

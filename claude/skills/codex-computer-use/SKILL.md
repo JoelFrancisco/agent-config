@@ -12,7 +12,8 @@ than the main loop (screenshots are token furnaces).
    (dev server command, port), the flow to exercise step by step, and what
    "correct" looks like (layout, copy, behavior, no console errors).
 2. Run:
-   `codex exec -s workspace-write -C <repo-root> -o "$(mktemp)" "<brief>"`
+   `codex exec -s workspace-write -C <repo-root> -o "$(mktemp)" "<brief>" </dev/null`
+   Always close stdin with `</dev/null` (codex blocks on a non-TTY stdin pipe).
    Tell it to use its browser tooling, take its own screenshots, and end with
    PASS/FAIL per checkpoint plus anything unexpected it saw.
 3. Read the output file; report only the verdict and findings — never pull raw

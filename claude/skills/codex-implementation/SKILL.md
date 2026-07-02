@@ -13,8 +13,10 @@ Your job is the spec and the review; Codex's job is the typing.
    exact verification steps (commands to run). Codex has no access to this
    conversation; the prompt must be self-contained.
 2. Run:
-   `codex exec -s workspace-write -C <repo-root> -o "$(mktemp)" "<spec>"`
-   Independent tasks may run in parallel with separate output files.
+   `codex exec -s workspace-write -C <repo-root> -o "$(mktemp)" "<spec>" </dev/null`
+   Always close stdin with `</dev/null`; with a non-TTY pipe attached, codex
+   blocks waiting for extra stdin input. Independent tasks may run in
+   parallel with separate output files.
 3. Review before accepting — you own correctness:
    - `git diff` the changes and actually read them.
    - Run the verification commands from the spec (tests, build).
