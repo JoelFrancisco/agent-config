@@ -18,4 +18,7 @@ than the main loop (screenshots are token furnaces).
    PASS/FAIL per checkpoint plus anything unexpected it saw.
 3. Read the output file; report only the verdict and findings — never pull raw
    screenshots into the main context.
-4. FAIL or ambiguous → inspect yourself (chrome-devtools skill) before fixing.
+4. If codex reports the sandbox blocked the real browser launch and it fell
+   back to jsdom: DOM behavior checks still count, but rendering/layout/visual
+   claims do not — verify those with the chrome-devtools skill instead.
+5. FAIL or ambiguous → inspect yourself (chrome-devtools skill) before fixing.
