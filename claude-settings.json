@@ -1,0 +1,9 @@
+{
+  "effortLevel": "high",
+  "permissions": {
+    "allow": [
+      "Bash(codex exec:*)",
+      "Bash(codex review:*)"
+    ]
+  }
+}
