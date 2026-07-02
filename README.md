@@ -12,6 +12,7 @@ conclusions back.
 |---|---|
 | `claude/CLAUDE.md` | global memory: model-routing table + escalation policy |
 | `claude/agents/codex-delegate.md` | thin sonnet wrapper so Workflows/subagents can use gpt-5.5 |
+| `claude/ccstatusline` | status line script (dir, branch, model:effort, ctx %, rate limits) |
 | `claude/skills/codex-implementation/` | delegate clear-spec implementation to `codex exec` |
 | `claude/skills/codex-review/` | independent gpt-5.5 review via `codex review` |
 | `claude/skills/codex-computer-use/` | browser/UI verification delegated to Codex |

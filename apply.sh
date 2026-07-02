@@ -22,19 +22,22 @@ link() {
 mkdir -p "$CLAUDE_DIR"
 link "$REPO_DIR/claude/CLAUDE.md" "$CLAUDE_DIR/CLAUDE.md"
 
-# 2. Agents
+# 2. Status line script
+link "$REPO_DIR/claude/ccstatusline" "$CLAUDE_DIR/ccstatusline"
+
+# 3. Agents
 mkdir -p "$CLAUDE_DIR/agents"
 for f in "$REPO_DIR"/claude/agents/*.md; do
   link "$f" "$CLAUDE_DIR/agents/$(basename "$f")"
 done
 
-# 3. Skills (per-skill symlinks; existing unrelated skills are untouched)
+# 4. Skills (per-skill symlinks; existing unrelated skills are untouched)
 mkdir -p "$CLAUDE_DIR/skills"
 for d in "$REPO_DIR"/claude/skills/*/; do
   link "${d%/}" "$CLAUDE_DIR/skills/$(basename "$d")"
 done
 
-# 4. Merge claude-settings.json into ~/.claude/settings.json
+# 5. Merge claude-settings.json into ~/.claude/settings.json
 #    (sets effortLevel, unions permissions.allow; everything else preserved)
 SETTINGS="$CLAUDE_DIR/settings.json"
 [ -f "$SETTINGS" ] || echo '{}' > "$SETTINGS"
@@ -48,7 +51,7 @@ jq -s '
 mv "${SETTINGS}.tmp" "$SETTINGS"
 echo "merged   claude-settings.json into $SETTINGS (backup: ${SETTINGS}.bak)"
 
-# 5. Codex config — seed only if absent; never clobber an existing one
+# 6. Codex config — seed only if absent; never clobber an existing one
 CODEX_CFG="${HOME}/.codex/config.toml"
 if [ -f "$CODEX_CFG" ]; then
   if grep -q '^model *= *"gpt-5.5"' "$CODEX_CFG"; then

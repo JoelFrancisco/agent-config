@@ -1,5 +1,11 @@
 {
   "effortLevel": "high",
+  "statusLine": {
+    "type": "command",
+    "command": "bash ~/.claude/ccstatusline",
+    "padding": 0,
+    "refreshInterval": 10
+  },
   "permissions": {
     "allow": [
       "Bash(codex exec:*)",

@@ -1,0 +1,153 @@
+#!/usr/bin/env bash
+# Claude Code status line — mirrors Starship config style
+# Receives JSON via stdin
+
+input=$(cat)
+
+# --- Data extraction ---
+cwd=$(echo "$input" | jq -r '.workspace.current_dir // .cwd // empty')
+model=$(echo "$input" | jq -r '.model.display_name // empty')
+remaining=$(echo "$input" | jq -r '.context_window.remaining_percentage // empty')
+total_input=$(echo "$input" | jq -r '.context_window.total_input_tokens // empty')
+ctx_size=$(echo "$input" | jq -r '.context_window.context_window_size // empty')
+project_dir=$(echo "$input" | jq -r '.workspace.project_dir // empty')
+five_h=$(echo "$input" | jq -r '.rate_limits.five_hour.used_percentage // empty')
+week=$(echo "$input" | jq -r '.rate_limits.seven_day.used_percentage // empty')
+repo=$(echo "$input" | jq -r '.workspace.repo | if . then .owner + "/" + .name else empty end')
+session_name=$(echo "$input" | jq -r '.session_name // empty')
+effort=$(echo "$input" | jq -r '.effort.level // empty')
+vim_mode=$(echo "$input" | jq -r '.vim.mode // empty')
+
+# --- ANSI colors (dimmed-friendly) ---
+RESET="\033[0m"
+BOLD="\033[1m"
+CYAN="\033[36m"
+PURPLE="\033[35m"
+YELLOW="\033[33m"
+RED="\033[31m"
+GREEN="\033[32m"
+DIM="\033[2m"
+
+# --- Directory (bold cyan, truncated to 3 parts like Starship) ---
+if [ -n "$cwd" ]; then
+  home_replaced="${cwd/#$HOME/~}"
+  # Truncate: keep last 3 path components
+  IFS='/' read -ra parts <<< "$home_replaced"
+  count=${#parts[@]}
+  if [ "$count" -gt 3 ]; then
+    dir_display=".../${parts[$count-2]}/${parts[$count-1]}"
+  else
+    dir_display="$home_replaced"
+  fi
+  printf "${BOLD}${CYAN}%s${RESET}" "$dir_display"
+fi
+
+# --- Git branch (bold purple, like Starship) ---
+if [ -n "$cwd" ] && [ -d "$cwd/.git" ] || git -C "$cwd" rev-parse --git-dir >/dev/null 2>&1; then
+  branch=$(git -C "$cwd" --no-optional-locks symbolic-ref --short HEAD 2>/dev/null)
+  if [ -n "$branch" ]; then
+    printf " ${BOLD}${PURPLE} %s${RESET}" "$branch"
+  fi
+  # Git status (bold red if dirty, like Starship)
+  git_dirty=$(git -C "$cwd" --no-optional-locks status --porcelain 2>/dev/null)
+  if [ -n "$git_dirty" ]; then
+    printf "${BOLD}${RED}*${RESET}"
+  fi
+fi
+
+# --- Repo (owner/name) when available ---
+if [ -n "$repo" ]; then
+  printf " ${DIM}(%s)${RESET}" "$repo"
+fi
+
+# --- Session name (truncated so it can't crowd out the rest) ---
+if [ -n "$session_name" ]; then
+  max_name=24
+  if [ "${#session_name}" -gt "$max_name" ]; then
+    session_name="${session_name:0:$((max_name - 1))}…"
+  fi
+  printf " ${DIM}[%s]${RESET}" "$session_name"
+fi
+
+# --- Model + effort ---
+if [ -n "$model" ]; then
+  if [ -n "$effort" ]; then
+    printf " ${YELLOW}%s${RESET}${DIM}:%s${RESET}" "$model" "$effort"
+  else
+    printf " ${YELLOW}%s${RESET}" "$model"
+  fi
+fi
+
+# --- Context window: % remaining until auto-compact, not until full window ---
+# autoCompactWindow is not exposed in the statusline JSON, so read it from
+# settings (project local > project > user local > user, same precedence CC uses)
+auto_compact=""
+for f in "$project_dir/.claude/settings.local.json" "$project_dir/.claude/settings.json" \
+         "$HOME/.claude/settings.local.json" "$HOME/.claude/settings.json"; do
+  [ -f "$f" ] || continue
+  val=$(jq -r '.autoCompactWindow // empty' "$f" 2>/dev/null)
+  if [ -n "$val" ]; then
+    auto_compact="$val"
+    break
+  fi
+done
+
+threshold="$ctx_size"
+if [ -n "$auto_compact" ] && [ -n "$ctx_size" ] && [ "$auto_compact" -lt "$ctx_size" ] 2>/dev/null; then
+  threshold="$auto_compact"
+fi
+
+# Claude Code auto-compacts BEFORE the window is full. Its internal threshold is
+# effectiveWindow-13000 (a hard floor), and the trigger counts PROJECTED tokens
+# (input + reserved output), which run ahead of total_input_tokens. Net observed
+# effect: compaction fires with ~34K of total_input_tokens headroom still showing.
+# Subtract a reserve so ctx:0% lines up with the real compaction point.
+# Override with CCSTATUSLINE_COMPACT_RESERVE if you see compaction land elsewhere.
+compact_reserve="${CCSTATUSLINE_COMPACT_RESERVE:-34000}"
+if [ -n "$threshold" ] && [ "$threshold" -gt "$compact_reserve" ] 2>/dev/null; then
+  threshold=$(( threshold - compact_reserve ))
+fi
+
+remaining_int=""
+if [ -n "$total_input" ] && [ -n "$threshold" ] && [ "$threshold" -gt 0 ] 2>/dev/null; then
+  remaining_int=$(( (threshold - total_input) * 100 / threshold ))
+  [ "$remaining_int" -lt 0 ] && remaining_int=0
+elif [ -n "$remaining" ]; then
+  remaining_int=$(printf "%.0f" "$remaining")
+fi
+
+if [ -n "$remaining_int" ]; then
+  if [ "$remaining_int" -lt 20 ]; then
+    ctx_color="${RED}"
+  elif [ "$remaining_int" -lt 40 ]; then
+    ctx_color="${YELLOW}"
+  else
+    ctx_color="${GREEN}"
+  fi
+  printf " ${ctx_color}ctx:%s%%${RESET}" "$remaining_int"
+fi
+
+# --- Rate limits ---
+rate_parts=""
+if [ -n "$five_h" ]; then
+  rate_parts="5h:$(printf '%.0f' "$five_h")%"
+fi
+if [ -n "$week" ]; then
+  [ -n "$rate_parts" ] && rate_parts="$rate_parts "
+  rate_parts="${rate_parts}7d:$(printf '%.0f' "$week")%"
+fi
+if [ -n "$rate_parts" ]; then
+  printf " ${DIM}%s${RESET}" "$rate_parts"
+fi
+
+# --- Vim mode ---
+if [ -n "$vim_mode" ]; then
+  case "$vim_mode" in
+    INSERT)      vcolor="${GREEN}" ;;
+    VISUAL*)     vcolor="${YELLOW}" ;;
+    *)           vcolor="${PURPLE}" ;;
+  esac
+  printf " ${vcolor}[%s]${RESET}" "$vim_mode"
+fi
+
+printf "\n"
