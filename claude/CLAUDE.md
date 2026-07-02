@@ -1,3 +1,5 @@
+@~/.claude/CLAUDE.local.md
+
 # Model routing — protect the Fable budget
 
 The main loop runs Fable at "high" effort (xhigh is token-hungry; max is a
@@ -47,6 +49,12 @@ Mechanics:
   codex-implementation, codex-review, and codex-computer-use skills; for work
   they don't cover (investigation, data analysis), run
   `codex exec -s read-only` directly with a self-contained prompt.
+- The read-only sandbox blocks network (DNS fails). For delegated context
+  gathering that hits APIs (jira, gitlab, wiki, metabase, observability,
+  sourcebot-fallback skills), use
+  `codex exec -s workspace-write -c sandbox_workspace_write.network_access=true`
+  from a scratch dir. MCP servers (sourcebot, ai-memory) run outside the
+  sandbox and work under any -s mode.
 - Claude models (sonnet, opus, fable) run via the Agent/Workflow model
   parameter.
 
