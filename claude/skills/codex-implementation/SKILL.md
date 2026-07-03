@@ -1,6 +1,6 @@
 ---
 name: codex-implementation
-description: Delegate a well-specified implementation task (clear-spec feature, boilerplate, migration, mechanical multi-file change) to Codex (gpt-5.5) via codex exec instead of implementing it inline. Use when the spec is clear and the work doesn't need Fable-level judgment.
+description: Delegate a well-specified implementation task (clear-spec feature, boilerplate, migration, mechanical multi-file change) to Codex (gpt-5.5) via codex exec instead of implementing it inline. Use when the spec is clear and the work doesn't need main-loop-level judgment.
 ---
 
 # Codex implementation delegate

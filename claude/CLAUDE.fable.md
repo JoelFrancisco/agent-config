@@ -1,19 +1,11 @@
 @~/.claude/CLAUDE.local.md
 
-# ⚠️ Fable temporarily unavailable — main loop is Opus
+# Model routing — protect the Fable budget
 
-Fable credits are exhausted. Until they're restored, **Opus runs the main loop**
-(the best Claude model by intelligence and taste once Fable is out; the main
-loop must be a Claude model, so gpt-5.5 can't take it). Everything below is
-already written for this regime. To switch back when Fable returns, follow
-"Restoring Fable" in the repo README (or `cp claude/CLAUDE.fable.md
-claude/CLAUDE.md` and re-pin the model).
-
-# Model routing — protect the main-loop (Opus) budget
-
-The main loop runs Opus at "high" effort. Opus plans, decides, reviews, and
-integrates. Cheaper models execute. Opus reads conclusions — never raw file
-dumps, log trawls, or browser screenshots.
+The main loop runs Fable at "high" effort (xhigh is token-hungry; max is a
+furnace with worse outputs). Fable plans, decides, reviews, and integrates.
+Cheaper models execute. Fable reads conclusions — never raw file dumps, log
+trawls, or browser screenshots.
 
 ## Picking the right models for workflows and subagents
 
@@ -22,12 +14,12 @@ ChatGPT plan with plenty of headroom), not list price. Intelligence is how
 hard a problem you can hand the model unsupervised. Taste covers UI/UX, code
 quality, API design, and copy.
 
-| model           | cost | intelligence | taste | note                          |
-|-----------------|------|--------------|-------|-------------------------------|
-| gpt-5.5 (codex) | 8    | 8            | 5     |                               |
-| sonnet          | 5    | 5            | 7     |                               |
-| opus            | 4    | 7            | 8     | main loop while Fable is out  |
-| fable           | 2    | 9            | 9     | UNAVAILABLE — credits out     |
+| model           | cost | intelligence | taste |
+|-----------------|------|--------------|-------|
+| gpt-5.5 (codex) | 8    | 8            | 5     |
+| sonnet          | 5    | 5            | 7     |
+| opus            | 4    | 7            | 8     |
+| fable           | 2    | 9            | 9     |
 
 How to apply:
 
@@ -36,14 +28,12 @@ How to apply:
   work with a smarter model without asking. Judge the output, not the price
   tag. Escalating costs less than shipping mediocre work.
 - Cost is a tie-breaker only; when axes conflict for anything that ships,
-  intelligence > taste > cost. With Fable out, the top of the Claude ladder is
-  Opus; for raw intelligence beyond Opus, delegate to gpt-5.5 via Codex.
+  intelligence > taste > cost.
 - Bulk/mechanical work (clear-spec implementation, data analysis, migrations):
   gpt-5.5 via the codex-implementation skill.
-- Anything user-facing (UI, copy, API design) needs taste >= 7.
-- Reviews of plans/implementations: Opus, optionally gpt-5.5 (codex-review
-  skill) as an extra independent perspective. For a hard problem where you'd
-  have reached for Fable, get a second opinion from gpt-5.5.
+- Anything user-facing (UI, copy, API design) needs taste ≥ 7.
+- Reviews of plans/implementations: fable or opus, optionally gpt-5.5
+  (codex-review skill) as an extra independent perspective.
 - Computer use and browser verification of UI/UX work: Codex is better and
   cheaper at this — use the codex-computer-use skill.
 - Codebase exploration/analysis: Explore subagent on sonnet; for whole-repo
@@ -73,6 +63,6 @@ Claude models, so use a wrapper):
 
 - Spawn the codex-delegate agent — a thin sonnet wrapper at low effort whose
   job is to write a self-contained codex prompt, run `codex exec` via Bash,
-  and return Codex's final message. The main loop is not involved until the
-  work is done.
+  and return Codex's final message. Fable is not involved until the work is
+  done.
 - In Workflow scripts: `agent(taskSpec, {agentType: 'codex-delegate'})`.

@@ -11,5 +11,6 @@
       "Bash(codex exec:*)",
       "Bash(codex review:*)"
     ]
-  }
+  },
+  "model": "claude-opus-4-8"
 }
