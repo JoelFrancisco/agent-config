@@ -6,17 +6,12 @@ effort orchestrates; gpt-5.5 (Codex CLI) executes well-spec'd work; token-hungry
 tasks (computer use, codebase analysis) run on cheaper models and report
 conclusions back.
 
-> ⚠️ **Temporary: Fable is out of credits — the main loop is Opus.**
-> `claude/CLAUDE.md` and the model pin are currently rerouted to Opus. The Fable
-> snapshot is preserved at `claude/CLAUDE.fable.md`. See
-> [Restoring Fable](#restoring-fable) to switch back.
-
 ## Layout
 
 | path | what it is |
 |---|---|
-| `claude/CLAUDE.md` | global memory: model-routing table + escalation policy (currently Opus-orchestrator) |
-| `claude/CLAUDE.fable.md` | snapshot of the Fable-orchestrator routing, restore source for when Fable is back |
+| `claude/CLAUDE.md` | global memory: model-routing table + escalation policy |
+| `claude/CLAUDE.fable.md` | snapshot of the Fable-orchestrator routing — kept as the restore source for credit outages (see below) |
 | `claude/agents/codex-delegate.md` | thin sonnet wrapper so Workflows/subagents can use gpt-5.5 |
 | `claude/ccstatusline` | status line script (dir, branch, model:effort, ctx %, rate limits) |
 | `claude/skills/codex-implementation/` | delegate clear-spec implementation to `codex exec` |
@@ -42,24 +37,21 @@ Prereqs: `jq`; Claude Code; Codex CLI installed and authed (`codex login`).
   `settings.json.bak`), and an existing `~/.codex/config.toml` is left
   untouched.
 
-## Restoring Fable
+## Fable credit-outage playbook
 
-When Fable credits are back, revert the reroute:
+When Fable credits run out, reroute the main loop to Opus (best remaining
+Claude model by intelligence + taste; the main loop must be a Claude model, so
+gpt-5.5 can't take it):
 
-```bash
-cd agent-config
-cp claude/CLAUDE.fable.md claude/CLAUDE.md          # restore routing doc (symlinked → live immediately)
-```
+1. Rewrite `claude/CLAUDE.md` for the Opus regime (see git history of the
+   2026-07 outage: commit `4bef9bd` has the exact Opus version to crib from) —
+   symlinked, so live immediately.
+2. Pin `"model": "claude-opus-4-8"` in `~/.claude/settings.json` and in
+   `claude-settings.json`.
+3. Commit. `claude/CLAUDE.fable.md` stays untouched as the restore source.
 
-Then re-pin the main-loop model to Fable:
-
-- Live: set `"model": "claude-fable-5[1m]"` in `~/.claude/settings.json`
-  (the pre-switch value is saved at `~/.claude/settings.json.fable-backup`), or
-  just `/model claude-fable-5[1m]` in a session.
-- Portable: set `model` back to `claude-fable-5[1m]` in `claude-settings.json`
-  (currently `claude-opus-4-8`) so a fresh `apply.sh` seeds Fable.
-
-Then commit the restore.
+When credits return: `cp claude/CLAUDE.fable.md claude/CLAUDE.md`, re-pin
+`claude-fable-5[1m]` in both settings files, commit.
 
 ## The workflow in one paragraph
 
