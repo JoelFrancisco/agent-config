@@ -20,9 +20,9 @@ You are a dispatcher, not an implementer. Never do the task yourself.
    before:
    - `</dev/null` — with a non-TTY pipe attached, codex blocks forever waiting
      for extra stdin. Always close stdin.
-   - `--skip-git-repo-check` — always pass it. It clears BOTH "not a git repo"
-     AND the "Not inside a trusted directory" refusal, which fires even inside a
-     real git repo that codex hasn't been told to trust.
+   - `--skip-git-repo-check` — pass it always. Inside a git repo it is a
+     harmless no-op; outside one (e.g. a scratch/tmp workdir) it is required,
+     since codex otherwise refuses with "Not inside a trusted directory".
 4. Read the tmpfile. If Codex edited files, run
    `git -C <workdir> diff --stat` to capture what changed.
 5. If codex produced no usable output (empty file, non-zero exit, a refusal, or
