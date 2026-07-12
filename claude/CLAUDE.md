@@ -44,8 +44,9 @@ How to apply:
 
 Mechanics:
 
-- gpt-5.5 is only reachable through the Codex CLI — `codex exec` /
-  `codex review` (~/.codex/config.toml pins gpt-5.5 at xhigh + fast mode). Use the
+- Codex models (gpt-5.5, gpt-5.6-sol) are only reachable through the Codex CLI —
+  `codex exec` / `codex review` (~/.codex/config.toml pins gpt-5.6-sol at high +
+  fast mode). Use the
   codex-implementation, codex-review, and codex-computer-use skills; for work
   they don't cover (investigation, data analysis), run
   `codex exec -s read-only` directly with a self-contained prompt.
@@ -58,11 +59,17 @@ Mechanics:
 - Claude models (sonnet, opus, fable) run via the Agent/Workflow model
   parameter.
 
-Using gpt-5.5 inside workflows and subagents (the model parameter only takes
+Using Codex inside workflows and subagents (the model parameter only takes
 Claude models, so use a wrapper):
 
 - Spawn the codex-delegate agent — a thin sonnet wrapper at low effort whose
   job is to write a self-contained codex prompt, run `codex exec` via Bash,
   and return Codex's final message. Fable is not involved until the work is
   done.
+- Delegate default: unless the task needs more, codex-delegate runs
+  `gpt-5.6-sol` at LOW reasoning effort
+  (`-m gpt-5.6-sol -c model_reasoning_effort=low`). Escalate to medium/high
+  only when warranted — the caller says so, or the task genuinely needs deep
+  reasoning (tricky debugging, subtle multi-file refactors). The config.toml
+  default (high) stays for interactive/direct codex runs.
 - In Workflow scripts: `agent(taskSpec, {agentType: 'codex-delegate'})`.
