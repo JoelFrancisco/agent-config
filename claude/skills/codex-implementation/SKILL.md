@@ -17,6 +17,11 @@ Your job is the spec and the review; Codex's job is the typing.
    Always close stdin with `</dev/null`; with a non-TTY pipe attached, codex
    blocks waiting for extra stdin input. Independent tasks may run in
    parallel with separate output files.
+   - **Long runs (large migration, big spec) — don't foreground-poll.** Launch
+     via the Bash tool with `run_in_background: true` (still `-o "$(mktemp)"`
+     and `</dev/null`) and let its completion notification wake you, or watch
+     the output file with the Monitor tool. Let the harness do the waiting —
+     never hand-assemble `nohup`/`sleep`/`pgrep`/`ps`/`tail -f` polling loops.
 3. Review before accepting — you own correctness:
    - `git diff` the changes and actually read them.
    - Run the verification commands from the spec (tests, build).
