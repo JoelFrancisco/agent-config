@@ -65,6 +65,20 @@ else
   echo "seeded   $CODEX_CFG"
 fi
 
+# 7. Cross-CLI skills (Codex + OpenCode only — Claude Code IS claude, it
+#    doesn't need skills for delegating to itself)
+mkdir -p "${HOME}/.codex/skills" "${HOME}/.config/opencode/skill"
+for d in "$REPO_DIR"/skills/*/; do
+  link "${d%/}" "${HOME}/.codex/skills/$(basename "$d")"
+  link "${d%/}" "${HOME}/.config/opencode/skill/$(basename "$d")"
+done
+
+# 8. OpenCode agents
+mkdir -p "${HOME}/.config/opencode/agents"
+for f in "$REPO_DIR"/opencode/agents/*.md; do
+  link "$f" "${HOME}/.config/opencode/agents/$(basename "$f")"
+done
+
 echo
 echo "done — new Claude Code sessions pick up CLAUDE.md, skills, and agents automatically."
 echo "symlinked files track this repo: 'git pull' updates them in place;"
