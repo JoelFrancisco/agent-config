@@ -16,8 +16,8 @@ quality, API design, and copy.
 
 | model           | cost | intelligence | taste |
 |-----------------|------|--------------|-------|
-| gpt-5.5 (codex) | 8    | 8            | 5     |
-| sonnet          | 5    | 5            | 7     |
+| gpt-5.6 Sol medium (codex) | 8    | 8            | 5     |
+| sonnet          | 5    | 5            | 6     |
 | opus            | 4    | 7            | 8     |
 | fable           | 2    | 9            | 9     |
 
@@ -30,23 +30,22 @@ How to apply:
 - Cost is a tie-breaker only; when axes conflict for anything that ships,
   intelligence > taste > cost.
 - Bulk/mechanical work (clear-spec implementation, data analysis, migrations):
-  gpt-5.5 via the codex-implementation skill.
+  gpt-5.6 Sol (medium) via the codex-implementation skill.
 - Anything user-facing (UI, copy, API design) needs taste ≥ 7.
-- Reviews of plans/implementations: fable or opus, optionally gpt-5.5
+- Reviews of plans/implementations: fable or opus, optionally gpt-5.6 Sol high
   (codex-review skill) as an extra independent perspective.
 - Computer use and browser verification of UI/UX work: Codex is better and
   cheaper at this — use the codex-computer-use skill.
-- Codebase exploration/analysis: Explore subagent on sonnet; for whole-repo
-  huge-context questions, the gemini CLI. Never grep/read-sweep in the main
+- Codebase exploration/analysis: Explore subagent on GPT 5.6 luna xhigh; for whole-repo
+  huge-context questions. Never grep/read-sweep in the main
   loop.
 - Haiku only for throwaway fan-out where a wrong answer is cheap; never for
   anything that ships.
 
 Mechanics:
 
-- Codex models (gpt-5.5, gpt-5.6-sol) are only reachable through the Codex CLI —
-  `codex exec` / `codex review` (~/.codex/config.toml pins gpt-5.6-sol at high +
-  fast mode). Use the
+- Codex models (gpt-5.6-sol, gpt-5.6-terra, gpt-5.6-luna) are only reachable through the Codex CLI —
+  `codex exec` / `codex review` (~/.codex/config.toml pins gpt-5.6-sol at high). Use the
   codex-implementation, codex-review, and codex-computer-use skills; for work
   they don't cover (investigation, data analysis), run
   `codex exec -s read-only` directly with a self-contained prompt.
@@ -67,9 +66,9 @@ Claude models, so use a wrapper):
   and return Codex's final message. Fable is not involved until the work is
   done.
 - Delegate default: unless the task needs more, codex-delegate runs
-  `gpt-5.6-sol` at LOW reasoning effort
-  (`-m gpt-5.6-sol -c model_reasoning_effort=low`). Escalate to medium/high
-  only when warranted — the caller says so, or the task genuinely needs deep
+  `gpt-5.6-sol` at MEDIUM reasoning effort
+  (`-m gpt-5.6-sol -c model_reasoning_effort=medium`). Escalate to high
+  only when warranted — the caller says so, reviews, or the task genuinely needs deep
   reasoning (tricky debugging, subtle multi-file refactors). The config.toml
   default (high) stays for interactive/direct codex runs.
 - In Workflow scripts: `agent(taskSpec, {agentType: 'codex-delegate'})`.
